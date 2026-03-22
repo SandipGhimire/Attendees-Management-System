@@ -10,7 +10,7 @@
     "editor.defaultFormatter": "prettier.prettier-vscode"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "prettier.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[javascript]": {
     "editor.defaultFormatter": "prettier.prettier-vscode"
@@ -22,7 +22,7 @@
     "editor.defaultFormatter": "prettier.prettier-vscode"
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "prettier.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
 
   "explorer.fileNesting.enabled": true,
