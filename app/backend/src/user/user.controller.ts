@@ -13,13 +13,20 @@ export class UserController {
 
   @Get("list")
   async listUsers(@Query() query: Record<string, any>) {
+    let parsedFilters: unknown;
+    if (typeof query.filters === "string") {
+      parsedFilters = JSON.parse(query.filters);
+    } else {
+      parsedFilters = query.filters;
+    }
     const params = {
       page: Number(query.page) || 1,
       pageSize: Number(query.pageSize) || 10,
       search: query.search as string | undefined,
       sortBy: query.sortBy as string | undefined,
       sortOrder: query.sortOrder as "asc" | "desc" | undefined,
-      filters: typeof query.filters === 'string' ? JSON.parse(query.filters as string) : query.filters,
+      filters:
+        typeof parsedFilters === "object" && parsedFilters !== null ? (parsedFilters as Record<string, unknown>) : {},
     };
     const result = await this.userService.getAllUsers(params);
     return {

@@ -6,21 +6,26 @@ import { PaginatedData, FetchParams } from "shared-types";
  * @param params Pagination, filtering, and sorting parameters
  * @param extraWhere Optional additional where conditions
  */
-export async function paginate<T>(model: any, params: FetchParams, extraWhere: any = {}): Promise<PaginatedData<T>> {
-  const { page = 1, pageSize = 10, search, sortBy, sortOrder = "asc", filters } = params;
+
+type PrismaModelDelegate<T> = {
+  findMany: (args: any) => Promise<T[]>;
+  count: (args: any) => Promise<number>;
+};
+
+export async function paginate<T>(
+  model: PrismaModelDelegate<T>,
+  params: FetchParams,
+  extraWhere: any = {}
+): Promise<PaginatedData<T>> {
+  const { page = 1, pageSize = 10, sortBy, sortOrder = "asc", filters } = params;
 
   const skip = (Math.max(1, page) - 1) * pageSize;
   const take = pageSize;
 
-  // Combine filters and extra conditions
   const where = {
-    ...extraWhere,
-    ...(filters || {}),
+    ...(extraWhere as object),
+    ...(filters as object),
   };
-
-  // If search is provided, we might need model-specific logic or a generic 'OR' condition
-  // For this generic util, we'll assume 'extraWhere' might already contain search logic
-  // if it's complex, otherwise we just use the combined 'where'.
 
   const [data, total] = await Promise.all([
     model.findMany({
@@ -35,10 +40,10 @@ export async function paginate<T>(model: any, params: FetchParams, extraWhere: a
   return {
     data,
     meta: {
-      total,
+      total: total ? total : 0,
       page,
       pageSize,
-      totalPages: Math.ceil(total / pageSize),
+      totalPages: Math.ceil(total ? total : 0 / pageSize),
     },
   };
 }

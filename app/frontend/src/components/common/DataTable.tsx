@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { DataTableProps } from "@/core/types/component/dataTable.type";
 import { ChevronLeft, ChevronRight, FileX, Loader2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { ActionDropdown } from "./ActionDropdown";
+import api from "@/core/app/api";
 
 const EMPTY_ARRAY: any[] = [];
 
@@ -12,8 +13,9 @@ const EMPTY_ARRAY: any[] = [];
 export default function DataTable<T>({
   columns,
   mode,
+  apiUrl,
   data: localData = EMPTY_ARRAY as T[],
-  onFetch,
+  fetchCallback,
   actions,
   initialPageSize = 10,
   emptyMessage = "No data available",
@@ -32,20 +34,27 @@ export default function DataTable<T>({
   const totalPages = Math.ceil(total / pageSize);
 
   const fetchData = useCallback(async () => {
-    if (mode === "api" && onFetch) {
+    if (mode === "api" && apiUrl) {
       setLoading(true);
       try {
-        const response = await onFetch({
+        const params = {
           page,
           pageSize,
           filters,
           sortBy,
           sortOrder,
-        });
+        };
+        const fetchParams = {
+          ...params,
+          filters:
+            params.filters && Object.keys(params.filters).length > 0 ? JSON.stringify(params.filters) : undefined,
+        };
+        const response = await api.get(apiUrl, { params: fetchParams }).then((res) => res.data);
         if (response.success) {
           setData(response.data.data);
           setTotal(response.data.meta.total);
         }
+        fetchCallback?.(response.data);
       } catch (err) {
         console.error("DataTable Fetch Error:", err);
       } finally {
@@ -79,7 +88,7 @@ export default function DataTable<T>({
       setTotal(filtered.length);
       setData(filtered.slice(start, start + pageSize));
     }
-  }, [mode, onFetch, localData, page, pageSize, filters, sortBy, sortOrder]);
+  }, [mode, localData, page, pageSize, filters, sortBy, sortOrder, apiUrl, fetchCallback]);
 
   useEffect(() => {
     fetchData();

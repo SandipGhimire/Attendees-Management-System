@@ -1,10 +1,9 @@
 import ContentLayout from "@/components/common/ContentLayout";
 import DataTable from "@/components/common/DataTable";
 import type { ColumnConfig, TableAction } from "@/core/types/component/dataTable.type";
-import api from "@/core/app/api";
 import endpoints from "@/core/app/endpoints";
 import type { UserDetail } from "shared-types";
-import { useMemo, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 export default function UserList() {
   const columns: ColumnConfig<UserDetail>[] = useMemo(
@@ -66,17 +65,13 @@ export default function UserList() {
     []
   );
 
-  const handleFetch = useCallback(async (params: any) => {
-    const fetchParams = {
-      ...params,
-      filters: params.filters && Object.keys(params.filters).length > 0 ? JSON.stringify(params.filters) : undefined,
-    };
-    return api.get(endpoints.user.list, { params: fetchParams }).then((res) => res.data);
+  const onFetch = useCallback((data: any) => {
+    console.log(data.meta.total);
   }, []);
 
   return (
     <ContentLayout
-      header="Users"
+      header={{ label: "Users", count: 10 }}
       buttons={[
         {
           label: "Create User",
@@ -88,8 +83,9 @@ export default function UserList() {
       <div className="p-1">
         <DataTable
           mode="api"
+          apiUrl={endpoints.user.list}
+          fetchCallback={onFetch}
           columns={columns}
-          onFetch={handleFetch}
           actions={actions}
           initialPageSize={10}
           heightOffset={15.5}

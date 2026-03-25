@@ -5,7 +5,10 @@ export interface ButtonConfig {
 }
 
 export interface ContentLayoutProps {
-  header: string;
+  header: {
+    label: string;
+    count?: number | string;
+  };
   buttons?: ButtonConfig[];
   children: React.ReactNode;
 }
