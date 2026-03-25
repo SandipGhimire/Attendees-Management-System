@@ -5,7 +5,10 @@ export default function ContentLayout({ header, buttons = [], children }: Conten
     <>
       <div className="bg-white border rounded-sm mb-12 relative">
         <div className="p-4 border-b flex justify-between items-center">
-          <div className="font-bold text-xl text-primary">{header}</div>
+          <div className="font-bold text-xl text-primary">
+            {header.label}
+            {header.count && <span className="ml-1 font-bold text-[14px] text-secondary">({header.count})</span>}
+          </div>
           <div className="flex gap-1">
             {buttons.map((button, index) => (
               <button key={index} className={`btn ${button.className}`} onClick={button.onClick}>

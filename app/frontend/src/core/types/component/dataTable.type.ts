@@ -1,6 +1,6 @@
 import type { IconName } from "lucide-react/dynamic";
 import React from "react";
-import type { PaginatedData, FetchParams, ApiResponse } from "shared-types";
+import type { PaginatedData, ApiResponse } from "shared-types";
 
 export interface ColumnConfig<T> {
   key: keyof T | string;
@@ -29,11 +29,14 @@ export interface DataTableProps<T> {
   /** Mode of operation: 'api' for server-side, 'local' for client-side */
   mode: "api" | "local";
 
+  /** API URL for 'api' mode */
+  apiUrl?: string;
+
   /** Data for 'local' mode. For 'api' mode, use 'onFetch' instead. */
   data?: T[];
 
   /** Fetcher function for 'api' mode */
-  onFetch?: (params: FetchParams) => Promise<ApiResponse<PaginatedData<T>>>;
+  fetchCallback?: (params: ApiResponse<PaginatedData<T>>) => void;
 
   /** Optional actions for each row */
   actions?: TableAction<T>[];
