@@ -17,6 +17,8 @@ const role = {
 const attendees = {
   list: "/attendees/list/",
   create: "/attendees/create/",
+  update: "/attendees/update/",
+  detail: "/attendees/",
 };
 
 const sponsor = {

@@ -14,15 +14,20 @@ export default function CreateAttendee({ onSuccess }: CreateAttendeeProps) {
     createForm,
     setCreateFormField,
     createAttendee,
+    updateAttendee,
+    selectedAttendee,
     errors,
-    resetCreateForm,
-  } = useAttendeeStore(); // Added resetCreateForm
-  const isLoading = useLoaderStore((s) => s.isLoading("createAttendee"));
+  } = useAttendeeStore(); 
+  const isLoading = useLoaderStore((s) => s.isLoading("createAttendee") || s.isLoading("updateAttendee"));
   const [previewUrl, setPreviewUrl] = useState<string | null>(null); // Added previewUrl state
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createAttendee(onSuccess);
+    if (selectedAttendee) {
+      updateAttendee(onSuccess);
+    } else {
+      createAttendee(onSuccess);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,25 +40,32 @@ export default function CreateAttendee({ onSuccess }: CreateAttendeeProps) {
   };
 
   useEffect(() => {
-    if (!isCreateModalOpen) {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-      setPreviewUrl(null);
-      resetCreateForm();
+    if (!isCreateModalOpen && previewUrl) {
+      URL.revokeObjectURL(previewUrl);
     }
+  }, [isCreateModalOpen, previewUrl]);
+
+  useEffect(() => {
+    if (isCreateModalOpen && !selectedAttendee) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks, @typescript-eslint/no-unused-expressions
+      setPreviewUrl(null);
+    }
+  }, [isCreateModalOpen, selectedAttendee]);
+  
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
       }
     };
-  }, [isCreateModalOpen, resetCreateForm, previewUrl]); // Added previewUrl to dependencies for cleanup
+  }, [previewUrl]);
 
   return (
     <Modal
       isOpen={isCreateModalOpen}
       onClose={closeCreateModal}
-      title="Create New Attendee"
+      title={selectedAttendee ? "Update Attendee" : "Create New Attendee"}
       size="md"
       footer={
         <>
@@ -66,7 +78,7 @@ export default function CreateAttendee({ onSuccess }: CreateAttendeeProps) {
             onClick={handleSubmit}
             // Removed the disabled condition checking multiple form fields
           >
-            Create Attendee
+            {selectedAttendee ? "Update Attendee" : "Create Attendee"}
           </button>
         </>
       }

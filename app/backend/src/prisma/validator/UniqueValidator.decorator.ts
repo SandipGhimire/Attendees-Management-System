@@ -3,6 +3,7 @@ import { IsUniqueConstraint } from "./UniqueValidator.validator";
 
 interface customIsUniqueValidationArguments extends ValidatorOptions {
   message?: string;
+  excludeIdField?: string;
 }
 
 export function IsUnique(model: string, column: string, validationOptions?: customIsUniqueValidationArguments) {
@@ -11,7 +12,7 @@ export function IsUnique(model: string, column: string, validationOptions?: cust
       name: "isUnique",
       target: object.constructor,
       propertyName: propertyName,
-      constraints: [model, column],
+      constraints: [model, column, validationOptions?.excludeIdField],
       options: validationOptions,
       validator: IsUniqueConstraint,
     });

@@ -8,9 +8,14 @@ export class AttendeeCreateDto implements CreateAttendeePayload {
   @IsNotEmpty({ message: "Name is required" })
   name: string;
 
+  @IsOptional()
+  @Transform(({ value }) => (value ? Number(value) : undefined))
+  @IsNumber()
+  id?: number;
+
   @IsEmail()
   @IsNotEmpty({ message: "Email is required" })
-  @IsUnique("attendee", "email", { message: "Email already exists" })
+  @IsUnique("attendee", "email", { message: "Email already exists", excludeIdField: "id" })
   email: string;
 
   @IsString()
