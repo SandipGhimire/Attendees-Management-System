@@ -2,7 +2,7 @@
    MODAL OVERLAY (BACKDROP)
    ----------------------------------------------------------------------------- */
 .modal-overlay {
-  @apply fixed inset-0 z-50 flex items-start justify-center;
+  @apply fixed inset-0 z-52 flex items-start justify-center;
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
 }

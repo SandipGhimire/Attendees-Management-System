@@ -92,9 +92,6 @@ importers:
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
-      shared-types:
-        specifier: workspace:*
-        version: link:../../packages/shared-types
       ua-parser-js:
         specifier: ^2.0.7
         version: 2.0.7
@@ -147,6 +144,9 @@ importers:
       prisma:
         specifier: ^7.2.0
         version: 7.2.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
+      shared-types:
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21

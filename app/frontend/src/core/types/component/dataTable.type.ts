@@ -58,3 +58,7 @@ export interface PaginationState {
   page: number;
   pageSize: number;
 }
+
+export interface DataTableHandle {
+  refresh: () => void;
+}
