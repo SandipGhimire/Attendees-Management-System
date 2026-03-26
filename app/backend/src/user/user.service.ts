@@ -53,6 +53,34 @@ export class UserService {
     return user;
   }
 
+  async getUserById(id: number): Promise<any> {
+    const userDetail = await this.db.user.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        uuid: true,
+        email: true,
+        username: true,
+        firstName: true,
+        middleName: true,
+        lastName: true,
+        phoneNumber: true,
+        isActive: true,
+        roles: {
+          select: {
+            roleId: true,
+          }
+        }
+      },
+    });
+
+    if (!userDetail) return null;
+
+    return userDetail;
+  }
+
   async getAllUsers(params: FetchParams): Promise<PaginatedData<any>> {
     const filters = (params.filters as Record<string, any>) || {};
     const prismaFilters: Record<string, any> = {};

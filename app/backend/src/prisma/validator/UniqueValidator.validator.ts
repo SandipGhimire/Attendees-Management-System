@@ -14,9 +14,9 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
   constructor(private readonly prisma: PrismaService) {}
 
   async validate(value: any, args: customIsUniqueValidationArguments) {
-    const constraints = args.constraints as [string, string];
+    const constraints = args.constraints as [string, string, string | undefined];
+    const [modelName, fieldName, excludeIdField] = constraints;
 
-    const [modelName, fieldName] = constraints;
     try {
       const model = (this.prisma as unknown as Record<string, any>)[modelName] as {
         findFirst: (options: { where: Record<string, unknown> }) => Promise<unknown>;
@@ -27,8 +27,18 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
         return false;
       }
 
+      const where: Record<string, any> = { [fieldName]: value as unknown };
+
+      if (excludeIdField) {
+        let excludeValue = (args.object as Record<string, any>)[excludeIdField] as string | number;
+        if (excludeValue !== undefined && excludeValue !== null) {
+          if (!isNaN(Number(excludeValue))) excludeValue = Number(excludeValue);
+          where[excludeIdField] = { not: excludeValue };
+        }
+      }
+
       const record = await model.findFirst({
-        where: { [fieldName]: value as unknown },
+        where,
       });
 
       return !record;

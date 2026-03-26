@@ -12,28 +12,27 @@ import { getBackendFile } from "@/core/utils/common.utils";
 export default function Attendees() {
   const [count, setCount] = useState(0);
   const openCreateModal = useAttendeeStore((s) => s.openCreateModal);
+  const setSelectedAttendee = useAttendeeStore((s) => s.setSelectedAttendee);
   const tableRef = useRef<DataTableHandle>(null);
 
   const columns: ColumnConfig<AttendeesDetail>[] = useMemo(
     () => [
       {
-        key: "profilePic",
-        header: "",
-        width: "50px",
-        render: (row) => (
-          <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-muted flex items-center justify-center cursor-pointer">
-            {row.profilePic ? (
-              <img src={getBackendFile(row.profilePic)} alt={row.name} className="w-full h-full object-cover" />
-            ) : (
-              <DynamicIcon name="user" size={20} className="text-muted-foreground" />
-            )}
-          </div>
-        ),
-      },
-      {
         key: "name",
         header: "Name",
         searchable: true,
+        render: (row) => (
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-border bg-muted flex items-center justify-center cursor-pointer -my-2">
+              {row.profilePic ? (
+                <img src={getBackendFile(row.profilePic)} alt={row.name} className="w-full h-full object-cover" />
+              ) : (
+                <DynamicIcon name="user" size={20} className="text-muted-foreground" />
+              )}
+            </div>
+            <span className="font-bold">{row.name}</span>
+          </div>
+        ),
       },
       {
         key: "email",
@@ -49,6 +48,11 @@ export default function Attendees() {
       {
         key: "clubName",
         header: "Club Name",
+        searchable: true,
+      },
+      {
+        key: "position",
+        header: "Position",
         searchable: true,
       },
       {
@@ -88,6 +92,13 @@ export default function Attendees() {
           apiUrl={endpoints.attendees.list}
           fetchCallback={onFetch}
           columns={columns}
+          actions={[
+            {
+              label: "Edit",
+              icon: "pencil",
+              onClick: (row) => setSelectedAttendee(row.id),
+            },
+          ]}
           initialPageSize={10}
           heightOffset={15.5}
         />
