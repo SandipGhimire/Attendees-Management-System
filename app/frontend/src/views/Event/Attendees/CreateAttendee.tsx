@@ -2,13 +2,18 @@ import Modal from "@/components/common/Modal";
 import { useAttendeeStore } from "@/store/app/attendee.store";
 import { useLoaderStore } from "@/store/app/loader.store";
 
-export default function CreateAttendee() {
-  const { isCreateModalOpen, closeCreateModal, createForm, setCreateFormField, createAttendee } = useAttendeeStore();
+interface CreateAttendeeProps {
+  onSuccess?: () => void;
+}
+
+export default function CreateAttendee({ onSuccess }: CreateAttendeeProps) {
+  const { isCreateModalOpen, closeCreateModal, createForm, setCreateFormField, createAttendee, errors } =
+    useAttendeeStore();
   const isLoading = useLoaderStore((s) => s.isLoading("createAttendee"));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createAttendee();
+    createAttendee(onSuccess);
   };
 
   return (
@@ -19,15 +24,10 @@ export default function CreateAttendee() {
       size="md"
       footer={
         <>
-          <button type="button" className="btn btn-outline-secondary" onClick={closeCreateModal} disabled={isLoading}>
+          <button type="button" className="btn btn-outline-danger" onClick={closeCreateModal} disabled={isLoading}>
             Cancel
           </button>
-          <button
-            type="button"
-            className={`btn btn-primary ${isLoading ? "btn-loading" : ""}`}
-            onClick={handleSubmit}
-            disabled={isLoading || !createForm.name || !createForm.email}
-          >
+          <button type="button" className={`btn btn-primary ${isLoading ? "btn-loading" : ""}`} onClick={handleSubmit}>
             Create Attendee
           </button>
         </>
@@ -41,11 +41,12 @@ export default function CreateAttendee() {
             <input
               id="createAttendee-name"
               type="text"
-              className="input-full"
+              className={`input-full ${errors?.name?.[0] ? "input-error" : ""}`}
               placeholder="Enter full name"
               value={createForm.name}
               onChange={(e) => setCreateFormField("name", e.target.value)}
             />
+            {errors?.name?.[0] && <span className="field-error">{errors.name?.[0]}</span>}
           </div>
 
           {/* Email */}
@@ -54,37 +55,54 @@ export default function CreateAttendee() {
             <input
               id="createAttendee-email"
               type="email"
-              className="input-full"
+              className={`input-full ${errors?.email?.[0] ? "input-error" : ""}`}
               placeholder="Enter email address"
               value={createForm.email}
               onChange={(e) => setCreateFormField("email", e.target.value)}
             />
+            {errors?.email?.[0] && <span className="field-error">{errors.email?.[0]}</span>}
           </div>
 
           {/* Phone Number */}
-          <div className="form-field">
+          <div className="form-field field-required">
             <label htmlFor="createAttendee-phoneNumber">Phone Number</label>
             <input
               id="createAttendee-phoneNumber"
-              type="tel"
-              className="input-full"
+              type="number"
+              className={`input-full ${errors?.phoneNumber?.[0] ? "input-error" : ""}`}
               placeholder="Enter phone number"
               value={createForm.phoneNumber}
               onChange={(e) => setCreateFormField("phoneNumber", e.target.value)}
             />
+            {errors?.phoneNumber?.[0] && <span className="field-error">{errors.phoneNumber?.[0]}</span>}
           </div>
 
           {/* Club Name */}
-          <div className="form-field">
+          <div className="form-field col-span-2 field-required">
             <label htmlFor="createAttendee-clubName">Club Name</label>
             <input
               id="createAttendee-clubName"
               type="text"
-              className="input-full"
+              className={`input-full ${errors?.clubName?.[0] ? "input-error" : ""}`}
               placeholder="Enter club name"
               value={createForm.clubName}
               onChange={(e) => setCreateFormField("clubName", e.target.value)}
             />
+            {errors?.clubName?.[0] && <span className="field-error">{errors.clubName?.[0]}</span>}
+          </div>
+
+          {/* Position */}
+          <div className="form-field field-required">
+            <label htmlFor="createAttendee-position">Position</label>
+            <input
+              id="createAttendee-position"
+              type="text"
+              className={`input-full ${errors?.position?.[0] ? "input-error" : ""}`}
+              placeholder="Enter position"
+              value={createForm.position}
+              onChange={(e) => setCreateFormField("position", e.target.value)}
+            />
+            {errors?.position?.[0] && <span className="field-error">{errors.position?.[0]}</span>}
           </div>
 
           {/* Membership ID */}
@@ -92,38 +110,25 @@ export default function CreateAttendee() {
             <label htmlFor="createAttendee-membershipID">Membership ID</label>
             <input
               id="createAttendee-membershipID"
-              type="text"
-              className="input-full"
+              type="number"
+              className={`input-full ${errors?.membershipID?.[0] ? "input-error" : ""}`}
               placeholder="Enter membership ID"
               value={createForm.membershipID}
-              onChange={(e) => setCreateFormField("membershipID", e.target.value)}
+              onChange={(e) => setCreateFormField("membershipID", Number(e.target.value))}
             />
-          </div>
-
-          {/* QR Code */}
-          <div className="form-field md:col-span-2">
-            <label htmlFor="createAttendee-qrCode">QR Code (Optional)</label>
-            <input
-              id="createAttendee-qrCode"
-              type="text"
-              className="input-full"
-              placeholder="Enter QR Code or leave blank to auto-generate"
-              value={createForm.qrCode}
-              onChange={(e) => setCreateFormField("qrCode", e.target.value)}
-            />
+            {errors?.membershipID?.[0] && <span className="field-error">{errors.membershipID?.[0]}</span>}
           </div>
 
           {/* Is Veg */}
-          <div className="form-field md:col-span-2 flex-row items-center gap-2 mt-2">
+          <div className="form-field flex-row! my-auto field-required">
             <input
               id="createAttendee-isVeg"
               type="checkbox"
               checked={createForm.isVeg}
               onChange={(e) => setCreateFormField("isVeg", e.target.checked)}
             />
-            <label htmlFor="createAttendee-isVeg" className="mb-0 cursor-pointer">
-              Is Vegetarian?
-            </label>
+            <label htmlFor="createAttendee-isVeg">Is Vegetarian?</label>
+            {errors?.isVeg?.[0] && <span className="field-error">{errors.isVeg?.[0]}</span>}
           </div>
         </div>
       </form>

@@ -1,9 +1,9 @@
 import ContentLayout from "@/components/common/ContentLayout";
 import DataTable from "@/components/common/DataTable";
-import type { ColumnConfig } from "@/core/types/component/dataTable.type";
+import type { ColumnConfig, DataTableHandle } from "@/core/types/component/dataTable.type";
 import endpoints from "@/core/app/endpoints";
 import type { AttendeesDetail } from "shared-types";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useRef } from "react";
 import { DynamicIcon } from "lucide-react/dynamic";
 import { useAttendeeStore } from "@/store/app/attendee.store";
 import CreateAttendee from "./CreateAttendee";
@@ -11,6 +11,7 @@ import CreateAttendee from "./CreateAttendee";
 export default function Attendees() {
   const [count, setCount] = useState(0);
   const openCreateModal = useAttendeeStore((s) => s.openCreateModal);
+  const tableRef = useRef<DataTableHandle>(null);
 
   const columns: ColumnConfig<AttendeesDetail>[] = useMemo(
     () => [
@@ -67,6 +68,7 @@ export default function Attendees() {
     >
       <div className="p-1">
         <DataTable
+          ref={tableRef}
           mode="api"
           apiUrl={endpoints.attendees.list}
           fetchCallback={onFetch}
@@ -76,7 +78,7 @@ export default function Attendees() {
         />
       </div>
 
-      <CreateAttendee />
+      <CreateAttendee onSuccess={() => tableRef.current?.refresh()} />
     </ContentLayout>
   );
 }

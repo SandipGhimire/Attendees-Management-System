@@ -16,7 +16,7 @@ export default function Modal({
   title,
   children,
   size = "md",
-  closeOnOverlay = true,
+  closeOnOverlay = false,
   showCloseButton = true,
   footer,
 }: ModalProps) {

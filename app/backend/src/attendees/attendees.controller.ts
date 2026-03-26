@@ -1,6 +1,7 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { AttendeesService } from "./attendees.service";
 import { parseQuery } from "../prisma/prisma.utils";
+import { AttendeeCreateDto } from "./attendees.dto";
 
 @Controller("attendees")
 export class AttendeesController {
@@ -12,6 +13,17 @@ export class AttendeesController {
     return {
       success: true,
       message: "Sponsors fetched successfully",
+      status: 200,
+      data: result,
+    };
+  }
+
+  @Post("create")
+  async createAttendee(@Body() body: AttendeeCreateDto) {
+    const result = await this.attendeesService.createAttendee(body);
+    return {
+      success: true,
+      message: "Attendee created successfully",
       status: 200,
       data: result,
     };

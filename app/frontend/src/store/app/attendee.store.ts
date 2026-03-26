@@ -2,41 +2,23 @@ import { create } from "zustand";
 import api from "@/core/app/api";
 import endpoints from "@/core/app/endpoints";
 import { useLoaderStore } from "@/store/app/loader.store";
+import type { CreateAttendeePayload } from "shared-types";
+import type { AttendeeState } from "@/core/types/attendees.type";
 
-interface CreateAttendeeForm {
-  name: string;
-  email: string;
-  phoneNumber: string;
-  clubName: string;
-  membershipID: string;
-  qrCode: string;
-  isVeg: boolean;
-}
-
-const defaultForm: CreateAttendeeForm = {
+const defaultForm: CreateAttendeePayload = {
   name: "",
   email: "",
   phoneNumber: "",
   clubName: "",
-  membershipID: "",
-  qrCode: "",
+  membershipID: null as unknown as number,
   isVeg: false,
+  position: "",
 };
-
-interface AttendeeState {
-  isCreateModalOpen: boolean;
-  createForm: CreateAttendeeForm;
-
-  openCreateModal: () => void;
-  closeCreateModal: () => void;
-  setCreateFormField: <K extends keyof CreateAttendeeForm>(field: K, value: CreateAttendeeForm[K]) => void;
-  resetCreateForm: () => void;
-  createAttendee: (successCallback?: () => void) => Promise<void>;
-}
 
 export const useAttendeeStore = create<AttendeeState>((set, get) => ({
   isCreateModalOpen: false,
   createForm: { ...defaultForm },
+  errors: null,
 
   openCreateModal: () => set({ isCreateModalOpen: true }),
 
@@ -57,22 +39,23 @@ export const useAttendeeStore = create<AttendeeState>((set, get) => ({
     const { createForm } = get();
 
     startLoader("createAttendee");
-    try {
-      await api.post(endpoints.attendees.create, {
-        name: createForm.name,
-        email: createForm.email,
-        phoneNumber: createForm.phoneNumber || undefined,
-        clubName: createForm.clubName || undefined,
-        membershipID: createForm.membershipID || undefined,
-        qrCode: createForm.qrCode || undefined,
-        isVeg: createForm.isVeg,
+
+    await api
+      .post(endpoints.attendees.create, { ...createForm })
+      .then(() => {
+        get().closeCreateModal();
+        successCallback?.();
+      })
+      .catch((err) => {
+        get().setError(err.response.data.error);
+      })
+      .finally(() => {
+        stopLoader("createAttendee");
       });
-      get().closeCreateModal();
-      successCallback?.();
-    } catch (err) {
-      console.error("Create attendee failed:", err);
-    } finally {
-      stopLoader("createAttendee");
-    }
+  },
+
+  setError: (errors: any) => {
+    set({ errors });
+    setTimeout(() => set({ errors: null }), 5000);
   },
 }));
