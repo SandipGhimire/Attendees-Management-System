@@ -31,5 +31,8 @@ jobs:
       - name: Generate Database
         run: pnpm run backend:db:generate
 
+      - name: Build Shared Package
+        run: pnpm run build:shared
+
       - name: Build
         run: pnpm run lint
