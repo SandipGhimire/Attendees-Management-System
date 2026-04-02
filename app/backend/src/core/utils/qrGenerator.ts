@@ -14,7 +14,7 @@ type GenerateQRParams = {
  * @returns PNG image buffer
  */
 export async function generateQRCode({ text, size = 2000 }: GenerateQRParams): Promise<Buffer> {
-  const qrSvg = await QRCode.toString(text, {
+  const qrSvg = (await QRCode.toString(text, {
     type: "svg",
     margin: 4,
     color: {
@@ -22,7 +22,7 @@ export async function generateQRCode({ text, size = 2000 }: GenerateQRParams): P
       light: BG_COLOR,
     },
     width: size,
-  });
+  })) as string;
 
   return await sharp(Buffer.from(qrSvg)).png({ compressionLevel: 9 }).toBuffer();
 }

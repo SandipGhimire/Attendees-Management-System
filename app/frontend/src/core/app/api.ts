@@ -46,7 +46,7 @@ api.interceptors.response.use(
     if (status !== 401 && status !== 403) {
       toast.error(error.response?.data?.message || error.response?.data?.error || "An unexpected error occurred.");
     }
-    
+
     if (status === 403) {
       toast.error("You do not have permission to perform this action.");
     }

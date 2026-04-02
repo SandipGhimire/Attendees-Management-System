@@ -115,7 +115,6 @@ export class AttendeesService {
 
     const qrCode = await generateRandomQRCode();
 
-    // Create the attendee first (without idCard)
     const attendee = await this.db.attendee.create({
       data: {
         name: body.name,
@@ -131,7 +130,6 @@ export class AttendeesService {
       },
     });
 
-    // Generate ID card and update the record
     try {
       const idCardPath = await this.generateAndSaveIdCard(attendee);
       return await this.db.attendee.update({
@@ -140,7 +138,7 @@ export class AttendeesService {
       });
     } catch (error) {
       console.error("⚠️ Failed to generate ID card:", error);
-      return attendee; // Return attendee even if card generation fails
+      return attendee;
     }
   }
 
@@ -165,7 +163,7 @@ export class AttendeesService {
       profilePicPath = saveFile(profilePic, "attendees", fileName);
     }
 
-    let paymentSlipPath = existingAttendee.paymentSlip;
+    let paymentSlipPath = existingAttendee.paymentSlip as string;
     if (paymentSlip) {
       const fileName = `${body.name.replace(/\s+/g, "-").toLowerCase()}-payment`;
       paymentSlipPath = saveFile(paymentSlip, "attendees", fileName);
@@ -186,7 +184,6 @@ export class AttendeesService {
       },
     });
 
-    // Regenerate ID card with updated data and save
     try {
       const idCardPath = await this.generateAndSaveIdCard(updatedAttendee);
       return await this.db.attendee.update({
@@ -195,7 +192,7 @@ export class AttendeesService {
       });
     } catch (error) {
       console.error("⚠️ Failed to regenerate ID card:", error);
-      return updatedAttendee; // Return attendee even if card generation fails
+      return updatedAttendee;
     }
   }
 

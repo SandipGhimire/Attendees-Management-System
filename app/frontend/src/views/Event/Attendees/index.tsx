@@ -75,19 +75,13 @@ export default function Attendees() {
         key: "isVeg",
         header: "Is Veg",
         render: (row) => (
-          <>{row.isVeg ? (
-            <Check
-              className="text-green-500 -my-2"
-              size={18}
-              strokeWidth={4}
-            />
-          ) : (
-            <X
-              className="text-red-500 -my-2"
-              size={18}
-              strokeWidth={4}
-            />
-          )}</>
+          <>
+            {row.isVeg ? (
+              <Check className="text-green-500 -my-2" size={18} strokeWidth={4} />
+            ) : (
+              <X className="text-red-500 -my-2" size={18} strokeWidth={4} />
+            )}
+          </>
         ),
       },
     ],
@@ -134,6 +128,12 @@ export default function Attendees() {
               onClick: (row) =>
                 row.paymentSlip && openViewer(getBackendFile(row.paymentSlip), `${row.name}'s Payment Slip`),
               disabled: (row) => !row.paymentSlip,
+            },
+            {
+              label: "View ID Card",
+              icon: FileText,
+              onClick: (row) => row.idCard && openViewer(getBackendFile(row.idCard), `${row.name}'s Payment Slip`),
+              disabled: (row) => !row.idCard,
             },
             {
               label: "Edit",
