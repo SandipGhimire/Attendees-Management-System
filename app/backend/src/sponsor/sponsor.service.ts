@@ -2,17 +2,26 @@ import { Injectable } from "@nestjs/common";
 import type { FetchParams, PaginatedData } from "shared-types";
 import { PrismaService } from "../prisma/prisma.service";
 import { paginate } from "../prisma/prisma.utils";
-import { saveFile } from "../common/utils/file-upload.utils";
+import { saveFile, renameFile } from "../common/utils/file-upload.utils";
 import { SponsorCreateDto, SponsorUpdateDto } from "./sponsor.dto";
 
 @Injectable()
 export class SponsorService {
   constructor(private readonly db: PrismaService) {}
 
-  private getLogoPath(file: Express.Multer.File | undefined, name: string, existingLogo: string | null): string | null {
+  private getLogoPath(
+    file: Express.Multer.File | undefined,
+    name: string,
+    existingLogo: string | null,
+    isNameChanged: boolean
+  ): string | null {
+    const fileName = name.replace(/\s+/g, "-").toLowerCase();
     if (file) {
-      const fileName = name.replace(/\s+/g, "-").toLowerCase();
-      return saveFile(file, "sponsors", fileName);
+      return saveFile(file, "sponsors", fileName, existingLogo);
+    }
+    if (isNameChanged && existingLogo) {
+      const renamedPath = renameFile(existingLogo, fileName);
+      return renamedPath || existingLogo;
     }
     return existingLogo;
   }
@@ -42,7 +51,7 @@ export class SponsorService {
   }
 
   async createSponsor(data: SponsorCreateDto, file?: Express.Multer.File) {
-    const logoPath = this.getLogoPath(file, data.name, data.logo || null);
+    const logoPath = this.getLogoPath(file, data.name, data.logo || null, false);
 
     return await this.db.sponsor.create({
       data: {
@@ -71,7 +80,8 @@ export class SponsorService {
       return null;
     }
 
-    const logoPath = this.getLogoPath(file, data.name, existingSponsor.logo || (data.logo as string));
+    const isNameChanged = existingSponsor.name !== data.name;
+    const logoPath = this.getLogoPath(file, data.name, existingSponsor.logo || (data.logo as string), isNameChanged);
 
     return await this.db.$transaction(async (tx) => {
       await tx.sponsorLink.deleteMany({

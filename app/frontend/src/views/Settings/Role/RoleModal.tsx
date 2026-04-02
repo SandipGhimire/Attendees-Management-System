@@ -154,7 +154,7 @@ export default function RoleModal({ successCallback }: RoleModalProps) {
                 return (
                   <div
                     key={module}
-                    className={`rounded-2xl border transition-all duration-300 ${
+                    className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
                       isSomeSelected ? "border-primary/30 bg-bg-primary" : "border-border/60 bg-bg-secondary/30"
                     }`}
                   >

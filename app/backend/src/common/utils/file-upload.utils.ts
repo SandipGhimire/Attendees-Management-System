@@ -70,6 +70,44 @@ export const deleteFile = (filePath: string) => {
 };
 
 /**
+ * Renames a file in the public directory.
+ * @param oldPath The current relative path to the file
+ * @param newFileName The new name for the file (without extension)
+ * @returns The new relative path to the file
+ */
+export const renameFile = (oldPath: string, newFileName: string): string | null => {
+  try {
+    const publicDir = path.join(process.cwd(), "public");
+    const fullOldPath = path.join(publicDir, oldPath);
+
+    if (!fs.existsSync(fullOldPath)) return null;
+
+    const directory = path.dirname(oldPath);
+    const extension = path.extname(oldPath);
+    const finalNewFileName = `${newFileName}${extension}`;
+    const newPath = path.join(directory, finalNewFileName);
+    const fullNewPath = path.join(publicDir, newPath);
+
+    // Ensure target directory exists (though it should as we're renaming in the same dir)
+    const targetDir = path.dirname(fullNewPath);
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    // Remove any existing file with the same name at destination
+    if (fs.existsSync(fullNewPath)) {
+      fs.unlinkSync(fullNewPath);
+    }
+
+    fs.renameSync(fullOldPath, fullNewPath);
+    return newPath;
+  } catch (error) {
+    console.error("Error renaming file:", error);
+    return null;
+  }
+};
+
+/**
  * Saves a raw Buffer to the specified directory (relative to 'public').
  * Removes any existing file with the same base name before saving.
  * @param buffer The file content as a Buffer

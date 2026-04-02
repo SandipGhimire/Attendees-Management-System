@@ -1,5 +1,6 @@
 import Modal from "./Modal";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Printer } from "lucide-react";
+import { useCallback } from "react";
 
 interface ImageViewerProps {
   isOpen: boolean;
@@ -7,9 +8,73 @@ interface ImageViewerProps {
   title?: string;
   src: string;
   alt?: string;
+  printWidth?: string;
+  printHeight?: string;
+  isIdCard?: boolean;
 }
 
-export default function ImageViewer({ isOpen, onClose, title = "Image Viewer", src, alt = "Image" }: ImageViewerProps) {
+export default function ImageViewer({
+  isOpen,
+  onClose,
+  title = "Image Viewer",
+  src,
+  alt = "Image",
+  printWidth,
+  printHeight,
+  isIdCard = false,
+}: ImageViewerProps) {
+  const handlePrint = useCallback(() => {
+    const pWidth = printWidth || (isIdCard ? "86mm" : "210mm");
+    const pHeight = printHeight || (isIdCard ? "114mm" : "297mm");
+
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "absolute";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) return;
+
+    doc.open();
+    doc.writeln(`
+    <html>
+      <head>
+        <title>Print ${title}</title>
+        <style>
+          @page {
+            size: ${pWidth} ${pHeight};
+            margin: 0;
+          }
+          body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            background: white;
+          }
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+        </style>
+      </head>
+      <body>
+        <img src="${src}" onload="window.focus(); window.print();" />
+      </body>
+    </html>
+  `);
+    doc.close();
+
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 1000);
+  }, [printWidth, printHeight, isIdCard, src, title]);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -17,7 +82,11 @@ export default function ImageViewer({ isOpen, onClose, title = "Image Viewer", s
       title={title}
       size="lg"
       footer={
-        <div className="flex justify-end w-full">
+        <div className="flex justify-end w-full gap-2">
+          <button onClick={handlePrint} className="btn btn-primary btn-sm flex items-center gap-2">
+            <Printer size={16} />
+            Print
+          </button>
           <a
             href={src}
             target="_blank"

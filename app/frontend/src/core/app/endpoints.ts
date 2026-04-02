@@ -26,6 +26,7 @@ const attendees = {
   create: "/attendees/create/",
   update: "/attendees/update/",
   detail: "/attendees/",
+  allIdCards: "/attendees/all-id-cards/",
 };
 
 const sponsor = {

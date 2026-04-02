@@ -11,6 +11,7 @@ import { getBackendFile } from "@/core/utils/common.utils";
 import ImageViewer from "@/components/common/ImageViewer";
 import { useHasPermission } from "@/core/utils/permission.utils";
 import TaskToggleModal from "./TaskToggleModal";
+import AllIDCardsModal from "./AllIDCardsModal";
 
 export default function Attendees() {
   const [count, setCount] = useState(0);
@@ -19,14 +20,20 @@ export default function Attendees() {
   const tableRef = useRef<DataTableHandle>(null);
   const [taskModalAttendee, setTaskModalAttendee] = useState<AttendeesDetail | null>(null);
 
-  const [viewerConfig, setViewerConfig] = useState<{ isOpen: boolean; src: string; title: string }>({
-    isOpen: false,
-    src: "",
-    title: "",
-  });
+  const [viewerConfig, setViewerConfig] = useState<{ isOpen: boolean; src: string; title: string; isIdCard?: boolean }>(
+    {
+      isOpen: false,
+      src: "",
+      title: "",
+      isIdCard: false,
+    }
+  );
+
+  const [allCardsModalOpen, setAllCardsModalOpen] = useState(false);
 
   const closeViewer = () => setViewerConfig((prev) => ({ ...prev, isOpen: false }));
-  const openViewer = (src: string, title: string) => setViewerConfig({ isOpen: true, src, title });
+  const openViewer = (src: string, title: string, isIdCard = false) =>
+    setViewerConfig({ isOpen: true, src, title, isIdCard });
 
   const columns: ColumnConfig<AttendeesDetail>[] = useMemo(
     () => [
@@ -101,6 +108,12 @@ export default function Attendees() {
       header={{ label: "Attendees", count }}
       buttons={[
         {
+          label: "Get All ID Cards",
+          onClick: () => setAllCardsModalOpen(true),
+          className: "btn-outline-primary",
+          isVisible: useHasPermission("attendee.all_id_cards"),
+        },
+        {
           label: "Create Attendee",
           onClick: openCreateModal,
           className: "btn-primary",
@@ -132,7 +145,7 @@ export default function Attendees() {
             {
               label: "View ID Card",
               icon: FileText,
-              onClick: (row) => row.idCard && openViewer(getBackendFile(row.idCard), `${row.name}'s Payment Slip`),
+              onClick: (row) => row.idCard && openViewer(getBackendFile(row.idCard), `${row.name}'s ID Card`, true),
               disabled: (row) => !row.idCard,
             },
             {
@@ -166,7 +179,10 @@ export default function Attendees() {
         src={viewerConfig.src}
         title={viewerConfig.title}
         alt={viewerConfig.title}
+        isIdCard={viewerConfig.isIdCard}
       />
+
+      <AllIDCardsModal isOpen={allCardsModalOpen} onClose={() => setAllCardsModalOpen(false)} />
     </ContentLayout>
   );
 }
