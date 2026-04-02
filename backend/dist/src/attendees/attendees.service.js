@@ -52,6 +52,7 @@ const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 let AttendeesService = class AttendeesService {
     db;
+    isGeneratingCards = false;
     constructor(db) {
         this.db = db;
     }
@@ -85,29 +86,33 @@ let AttendeesService = class AttendeesService {
         const attendees = await this.db.attendee.findMany({
             orderBy: { name: "asc" },
         });
-        let isGenerating = false;
         const missingCards = attendees.filter((a) => !a.idCard);
-        if (missingCards.length > 0) {
-            isGenerating = true;
+        if (missingCards.length > 0 && !this.isGeneratingCards) {
+            this.isGeneratingCards = true;
             void this.generateMissingCards(missingCards);
         }
         return {
             attendees: attendees.filter((a) => !!a.idCard),
-            isGenerating,
+            isGenerating: this.isGeneratingCards || missingCards.length > 0,
         };
     }
     async generateMissingCards(attendees) {
-        for (const attendee of attendees) {
-            try {
-                const idCardPath = await this.generateAndSaveIdCard(attendee);
-                await this.db.attendee.update({
-                    where: { id: attendee.id },
-                    data: { idCard: idCardPath },
-                });
+        try {
+            for (const attendee of attendees) {
+                try {
+                    const idCardPath = await this.generateAndSaveIdCard(attendee);
+                    await this.db.attendee.update({
+                        where: { id: attendee.id },
+                        data: { idCard: idCardPath },
+                    });
+                }
+                catch (error) {
+                    console.error(`⚠️ Failed to generate background ID card for ${attendee.name}:`, error);
+                }
             }
-            catch (error) {
-                console.error(`⚠️ Failed to generate background ID card for ${attendee.name}:`, error);
-            }
+        }
+        finally {
+            this.isGeneratingCards = false;
         }
     }
     getProfilePicBuffer(profilePicPath) {

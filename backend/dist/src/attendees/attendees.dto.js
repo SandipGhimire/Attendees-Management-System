@@ -58,7 +58,13 @@ __decorate([
     __metadata("design:type", Number)
 ], AttendeeCreateDto.prototype, "membershipID", void 0);
 __decorate([
-    (0, class_transformer_1.Transform)(({ value }) => value === "true" || value === true),
+    (0, class_transformer_1.Transform)(({ value }) => {
+        if (value === "true" || value === true)
+            return true;
+        if (value === "false" || value === false)
+            return false;
+        return value;
+    }),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], AttendeeCreateDto.prototype, "isVeg", void 0);

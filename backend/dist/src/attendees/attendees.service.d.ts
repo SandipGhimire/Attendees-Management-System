@@ -2,6 +2,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { CreateAttendeePayload, FetchParams, PaginatedData } from "shared-types";
 export declare class AttendeesService {
     private readonly db;
+    private isGeneratingCards;
     constructor(db: PrismaService);
     getAllAttendees(params: FetchParams): Promise<PaginatedData<any>>;
     getAttendeeById(id: number): Promise<{
