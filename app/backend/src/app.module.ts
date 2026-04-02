@@ -22,6 +22,11 @@ import { join } from "path";
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), "public"),
       serveRoot: "/public",
+      serveStaticOptions: {
+        cacheControl: false,
+        etag: false,
+        lastModified: false,
+      },
     }),
     ConfigModule.forRoot({
       isGlobal: true,
