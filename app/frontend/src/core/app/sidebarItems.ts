@@ -57,14 +57,6 @@ const sidebarItems = (): SidebarItem[] => {
       to: "/settings/users",
       permission: "user.list",
     },
-    {
-      label: "Demo",
-    },
-    {
-      label: "Infrastructure",
-      icon: Database,
-      to: "/demo/static",
-    },
   ];
 };
 
