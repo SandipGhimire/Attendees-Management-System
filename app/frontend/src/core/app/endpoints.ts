@@ -2,6 +2,9 @@ const auth = {
   login: "/auth/login/",
   refresh: "/auth/refresh/",
   logout: "/auth/logout/",
+  sessions: "/auth/sessions/",
+  revokeSession: "/auth/sessions/:sessionId/",
+  revokeUserSessions: "/auth/sessions/user/:userUUID/",
 };
 
 const user = {
@@ -9,6 +12,7 @@ const user = {
   list: "/user/list/",
   create: "/user/create/",
   update: "/user/:id/",
+  updateSelf: "/user/self/",
   delete: "/user/:id/",
 };
 

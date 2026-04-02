@@ -1,6 +1,6 @@
 import { useCoreStore } from "@/store/app/core.store";
 import { useAuthStore } from "@/store/auth/auth.store";
-import { PanelLeftClose, PanelRightClose, LogOut } from "lucide-react";
+import { PanelLeftClose, PanelRightClose, LogOut, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
@@ -92,7 +92,18 @@ export default function Header() {
             </div>
           </div>
           <hr />
+          <hr />
           <div className="px-2 py-1">
+            <button
+              onClick={() => {
+                setIsUserDropdownOpen(false);
+                navigate("/settings/profile");
+              }}
+              className="px-2 py-2 w-full text-left hover:bg-primary/10 rounded-sm cursor-pointer transition flex items-center gap-2"
+            >
+              <User size={16} />
+              Profile
+            </button>
             <button
               onClick={logoutUser}
               className="px-2 py-2 w-full text-left text-red-500 hover:bg-red-500/10 rounded-sm cursor-pointer transition flex items-center gap-2"

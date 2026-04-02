@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query,
 import { UserService } from "./user.service";
 import { parseQuery } from "../prisma/prisma.utils";
 import { Permission } from "../role/decorators/permission.decorator";
-import { CreateUserDto, UpdateUserDto } from "./user.dto";
+import { CreateUserDto, UpdateSelfDto, UpdateUserDto } from "./user.dto";
 import { type AuthenticatedRequest } from "../auth/interfaces/auth-request.interface";
 
 @Controller("user")
@@ -12,6 +12,17 @@ export class UserController {
   @Get("self")
   async getProfile(@Req() req: AuthenticatedRequest) {
     return await this.userService.getSelfUser(req.user.userUUID);
+  }
+
+  @Patch("self")
+  async updateSelf(@Req() req: AuthenticatedRequest, @Body() data: UpdateSelfDto) {
+    const result = await this.userService.updateSelfUser(req.user.userUUID, data);
+    return {
+      success: true,
+      message: "Profile updated successfully",
+      status: 200,
+      data: result,
+    };
   }
 
   @Post("create")

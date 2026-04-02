@@ -11,6 +11,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   loginDetail: {} as LoginDetail,
   user: {} as UserDetail,
+  sessionId: undefined,
 
   //Setters
   setIsAuthenticated: (isAuthenticated: boolean) => {
@@ -29,9 +30,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       .post(endpoints.auth.login, get().loginDetail)
       .then((res) => {
         if (isDevelopment()) {
-          const { accessToken, refreshToken } = res.data;
+          const { accessToken, refreshToken, sessionId } = res.data;
           jwtServices.setToken(accessToken);
           jwtServices.setRefreshToken(refreshToken);
+          set({ sessionId });
         }
         set({ isAuthenticated: true, loginDetail: {} as LoginDetail });
         successCallback?.();
@@ -63,7 +65,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     await api
       .get(endpoints.user.self)
       .then((res) => {
-        set({ isAuthenticated: true, user: res.data });
+        const token = jwtServices.getToken();
+        let sessionId = undefined;
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            sessionId = payload.sessionId;
+          } catch (e) {
+            console.error("Failed to decode token", e);
+          }
+        }
+        set({ isAuthenticated: true, user: res.data, sessionId });
       })
       .catch(() => {
         set({ isAuthenticated: false });

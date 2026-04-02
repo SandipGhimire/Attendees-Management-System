@@ -2,6 +2,7 @@ import { Controller, Post, Body, UseGuards, Get, Req, Delete, Param, Ip } from "
 import { AuthService } from "./auth.service";
 import { SignUpDto, LoginDTO, UserRequestDto, RefreshTokenRequestDto } from "./dto/auth.dto";
 import { JwtRefreshAuthGuard } from "./guards/jwt-refresh-auth.guard";
+import { Permission } from "../role/decorators/permission.decorator";
 import type { Request, Response } from "express";
 import { Res } from "@nestjs/common";
 import { Public } from "./decorators/public.decorator";
@@ -97,5 +98,11 @@ export class AuthController {
   async revokeSession(@Req() req: Request, @Param("sessionId") sessionId: string) {
     const user = req.user as UserRequestDto;
     return this.authService.revokeSession(user.userUUID, sessionId);
+  }
+
+  @Delete("sessions/user/:userUUID")
+  @Permission(["user.session.revoke"])
+  async revokeUserSessions(@Param("userUUID") userUUID: string) {
+    return this.authService.logoutAll(userUUID);
   }
 }

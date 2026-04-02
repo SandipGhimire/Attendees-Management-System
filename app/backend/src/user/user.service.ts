@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserDetail, FetchParams, PaginatedData } from "shared-types";
 import { paginate } from "../prisma/prisma.utils";
-import { CreateUserDto, UpdateUserDto } from "./user.dto";
+import { CreateUserDto, UpdateSelfDto, UpdateUserDto } from "./user.dto";
 import * as bcrypt from "bcrypt";
 
 function generateFullName(firstName: string, middleName: string | null, lastName: string) {
@@ -59,6 +59,37 @@ export class UserService {
     return user;
   }
 
+  async updateSelfUser(uuid: string, data: UpdateSelfDto) {
+    const { password, oldPassword, ...rest } = data;
+
+    const user = await this.db.user.findUnique({
+      where: { uuid },
+    });
+
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    const updateData: Record<string, any> = { ...rest };
+
+    if (password) {
+      if (!oldPassword) {
+        throw new BadRequestException("Old password is required to set a new password");
+      }
+
+      const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException("Invalid old password");
+      }
+
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    return await this.db.user.update({
+      where: { uuid },
+      data: updateData,
+    });
+  }
   async createUser(data: CreateUserDto) {
     const { password, roleIds, ...rest } = data;
     const hashedPassword = await bcrypt.hash(password, 10);

@@ -9,6 +9,7 @@ export interface AuthStore {
   isAuthenticated: boolean;
   loginDetail: LoginDetail;
   user: UserDetail;
+  sessionId?: string;
 
   // Setters
   setIsAuthenticated: (isAuthenticated: boolean) => void;

@@ -7,13 +7,19 @@ import { useCallback, useMemo, useState } from "react";
 import { useUserStore } from "@/store/app/user.store";
 import CreateUser from "./CreateUser";
 import { useHasPermission } from "@/core/utils/permission.utils";
-import { SquarePen, Trash2 } from "lucide-react";
+import { SquarePen, Trash2, ShieldAlert } from "lucide-react";
+import api from "@/core/app/api";
+import { toast } from "react-toastify";
+import { useLoaderStore } from "@/store/app/loader.store";
 
 export default function UserList() {
   const { openModal, deleteUser } = useUserStore();
   const canCreate = useHasPermission("user.create");
   const canUpdate = useHasPermission("user.update");
   const canDelete = useHasPermission("user.delete");
+  const canRevokeSessions = useHasPermission("user.session.revoke");
+
+  const { startLoader, stopLoader } = useLoaderStore();
 
   const [count, setCount] = useState(0);
   const [refresh, setRefresh] = useState(0);
@@ -85,8 +91,27 @@ export default function UserList() {
         className: "text-danger hover:bg-danger/10",
         hidden: () => !canDelete,
       },
+      {
+        label: "Revoke Sessions",
+        icon: ShieldAlert,
+        onClick: async (row: UserDetail) => {
+          if (!confirm(`Are you sure you want to revoke all sessions for ${row.firstName} ${row.lastName}?`)) return;
+
+          startLoader(`revoke-user-${row.uuid}`);
+          try {
+            await api.delete(endpoints.auth.revokeUserSessions.replace(":userUUID", row.uuid));
+            toast.success("All sessions revoked for user");
+          } catch (error: any) {
+            toast.error(error.response?.data?.message || "Failed to revoke sessions");
+          } finally {
+            stopLoader(`revoke-user-${row.uuid}`);
+          }
+        },
+        className: "text-orange-500 hover:bg-orange-500/10",
+        hidden: () => !canRevokeSessions,
+      },
     ],
-    [canUpdate, canDelete, openModal, deleteUser]
+    [canUpdate, canDelete, canRevokeSessions, openModal, deleteUser, startLoader, stopLoader]
   );
 
   const onFetch = useCallback((data: any) => {
