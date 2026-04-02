@@ -3,7 +3,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { CreateAttendeePayload, FetchParams, PaginatedData } from "shared-types";
 import { paginate } from "../prisma/prisma.utils";
 import { Attendee } from "../../database/generated/client";
-import { saveFile, saveBuffer } from "../common/utils/file-upload.utils";
+import { saveFile, saveBuffer, renameFile, deleteFile } from "../common/utils/file-upload.utils";
 import { generateIdCard } from "../core/utils/cardGenerator";
 import * as fs from "fs";
 import * as path from "path";
@@ -40,6 +40,40 @@ export class AttendeesService {
       where: { id },
     });
     return attendee;
+  }
+
+  async getAllIdCards() {
+    const attendees = await this.db.attendee.findMany({
+      orderBy: { name: "asc" },
+    });
+
+    let isGenerating = false;
+    const missingCards = attendees.filter((a) => !a.idCard);
+
+    if (missingCards.length > 0) {
+      isGenerating = true;
+      // Start background generation
+      void this.generateMissingCards(missingCards);
+    }
+
+    return {
+      attendees: attendees.filter((a) => !!a.idCard),
+      isGenerating,
+    };
+  }
+
+  private async generateMissingCards(attendees: Attendee[]) {
+    for (const attendee of attendees) {
+      try {
+        const idCardPath = await this.generateAndSaveIdCard(attendee);
+        await this.db.attendee.update({
+          where: { id: attendee.id },
+          data: { idCard: idCardPath },
+        });
+      } catch (error) {
+        console.error(`⚠️ Failed to generate background ID card for ${attendee.name}:`, error);
+      }
+    }
   }
 
   /**
@@ -160,13 +194,21 @@ export class AttendeesService {
     let profilePicPath = existingAttendee.profilePic;
     if (profilePic) {
       const fileName = `${body.name.replace(/\s+/g, "-").toLowerCase()}-profile`;
-      profilePicPath = saveFile(profilePic, "attendees", fileName);
+      profilePicPath = saveFile(profilePic, "attendees", fileName, existingAttendee.profilePic);
+    } else if (existingAttendee.name !== body.name && existingAttendee.profilePic) {
+      const newPicName = `${body.name.replace(/\s+/g, "-").toLowerCase()}-profile`;
+      const renamedPath = renameFile(existingAttendee.profilePic, newPicName);
+      if (renamedPath) profilePicPath = renamedPath;
     }
 
     let paymentSlipPath = existingAttendee.paymentSlip as string;
     if (paymentSlip) {
       const fileName = `${body.name.replace(/\s+/g, "-").toLowerCase()}-payment`;
-      paymentSlipPath = saveFile(paymentSlip, "attendees", fileName);
+      paymentSlipPath = saveFile(paymentSlip, "attendees", fileName, existingAttendee.paymentSlip);
+    } else if (existingAttendee.name !== body.name && existingAttendee.paymentSlip) {
+      const newSlipName = `${body.name.replace(/\s+/g, "-").toLowerCase()}-payment`;
+      const renamedPath = renameFile(existingAttendee.paymentSlip, newSlipName);
+      if (renamedPath) paymentSlipPath = renamedPath;
     }
 
     const updatedAttendee = await this.db.attendee.update({
@@ -185,6 +227,9 @@ export class AttendeesService {
     });
 
     try {
+      if (existingAttendee.name !== body.name && existingAttendee.idCard) {
+        deleteFile(existingAttendee.idCard);
+      }
       const idCardPath = await this.generateAndSaveIdCard(updatedAttendee);
       return await this.db.attendee.update({
         where: { id: updatedAttendee.id },

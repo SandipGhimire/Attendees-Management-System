@@ -10,6 +10,18 @@ import type { AuthenticatedRequest } from "../auth/interfaces/auth-request.inter
 export class AttendeesController {
   constructor(private readonly attendeesService: AttendeesService) {}
 
+  @Get("all-id-cards")
+  @Permission(["attendee.all_id_cards"])
+  async getAllIdCards() {
+    const result = await this.attendeesService.getAllIdCards();
+    return {
+      success: true,
+      message: "ID cards fetched successfully",
+      status: 200,
+      data: result,
+    };
+  }
+
   @Get("list")
   @Permission(["attendee.list"])
   async listAttendees(@Query() query: Record<string, any>) {
