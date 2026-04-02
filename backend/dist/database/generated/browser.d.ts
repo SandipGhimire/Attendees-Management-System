@@ -1,0 +1,16 @@
+import * as Prisma from './internal/prismaNamespaceBrowser.js';
+export { Prisma };
+export * as $Enums from './enums.js';
+export * from './enums.js';
+export type Attendee = Prisma.AttendeeModel;
+export type Task = Prisma.TaskModel;
+export type AttendeeTaskLog = Prisma.AttendeeTaskLogModel;
+export type Role = Prisma.RoleModel;
+export type Permission = Prisma.PermissionModel;
+export type UserRole = Prisma.UserRoleModel;
+export type RolePermission = Prisma.RolePermissionModel;
+export type Sponsor = Prisma.SponsorModel;
+export type SponsorLink = Prisma.SponsorLinkModel;
+export type SystemLog = Prisma.SystemLogModel;
+export type User = Prisma.UserModel;
+export type RefreshToken = Prisma.RefreshTokenModel;

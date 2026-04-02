@@ -1,0 +1,55 @@
+import { PrismaService } from "../prisma/prisma.service";
+import { UserDetail, FetchParams, PaginatedData } from "shared-types";
+import { CreateUserDto, UpdateUserDto } from "./user.dto";
+export declare class UserService {
+    private readonly db;
+    constructor(db: PrismaService);
+    getSelfUser(uuid: string): Promise<UserDetail>;
+    createUser(data: CreateUserDto): Promise<{
+        id: number;
+        email: string;
+        phoneNumber: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        isActive: boolean;
+        uuid: string;
+        password: string;
+        username: string;
+        firstName: string;
+        middleName: string | null;
+        lastName: string;
+        lastLogin: Date | null;
+    }>;
+    updateUser(id: number, data: UpdateUserDto): Promise<{
+        id: number;
+        email: string;
+        phoneNumber: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        isActive: boolean;
+        uuid: string;
+        password: string;
+        username: string;
+        firstName: string;
+        middleName: string | null;
+        lastName: string;
+        lastLogin: Date | null;
+    } | null>;
+    deleteUser(id: number): Promise<{
+        id: number;
+        email: string;
+        phoneNumber: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        isActive: boolean;
+        uuid: string;
+        password: string;
+        username: string;
+        firstName: string;
+        middleName: string | null;
+        lastName: string;
+        lastLogin: Date | null;
+    }>;
+    getUserById(id: number): Promise<UserDetail | null>;
+    getAllUsers(params: FetchParams): Promise<PaginatedData<any>>;
+}
