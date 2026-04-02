@@ -34,5 +34,94 @@ jobs:
       - name: Build Shared Package
         run: pnpm run build:shared
 
-      - name: Build
+      - name: Lint
         run: pnpm run lint
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Database
+        run: pnpm run backend:db:generate
+
+      - name: Build Shared
+        run: pnpm run build:shared
+
+      - name: Build Backend
+        run: pnpm run build:backend
+
+      - name: Build Frontend
+        env:
+          VITE_ENV: production
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+        run: |
+          # Write the .env file for the frontend build
+          cat > app/frontend/.env << EOF
+          VITE_ENV=production
+          VITE_API_URL=${{ secrets.VITE_API_BASE_URL }}
+          EOF
+          pnpm run build:frontend
+
+      - name: Bundle Backend with pnpm deploy
+        run: pnpm deploy --filter backend --prod ./release/backend
+
+      - name: Clean Backend Release
+        run: |
+          cd release/backend
+          rm -rf \
+            node_modules \
+            src \
+            test \
+            .env.example \
+            .eslintignore \
+            .eslintrc.js \
+            eslint.config.mjs \
+            .prettierrc \
+            .prettierignore \
+            README.md \
+            tsconfig.* \
+            nest-cli.json
+
+      - name: Push Builds to build Branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Clone the build branch into a separate directory
+          git clone --branch build --single-branch \
+            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git \
+            build-repo
+
+          # Clear old build artifacts
+          rm -rf build-repo/frontend build-repo/backend
+
+          # Copy new build artifacts
+          mkdir -p build-repo/frontend build-repo/backend
+          cp -r app/frontend/dist/. build-repo/frontend/
+          cp -r release/backend/. build-repo/backend/
+
+          # Commit and push
+          cd build-repo
+          git add -A
+          git diff --cached --quiet || git commit -m "deploy: $(date -u '+%Y-%m-%dT%H:%M:%SZ') @ ${{ github.sha }}"
+          git push
