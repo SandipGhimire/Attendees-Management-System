@@ -4,8 +4,10 @@ import { parseQuery } from "../prisma/prisma.utils";
 import { AttendeeCreateDto } from "./attendees.dto";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { Permission } from "../role/decorators/permission.decorator";
+import { LoggingInterceptor } from "../common/interceptors/logging.interceptor";
 import type { AuthenticatedRequest } from "../auth/interfaces/auth-request.interface";
 
+@UseInterceptors(LoggingInterceptor)
 @Controller("attendees")
 export class AttendeesController {
   constructor(private readonly attendeesService: AttendeesService) {}

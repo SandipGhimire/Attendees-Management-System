@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query, UseInterceptors } from "@nestjs/common";
 import { TaskService } from "./task.service";
 import { parseQuery } from "../prisma/prisma.utils";
 import { TaskCreateDto, TaskUpdateDto } from "./task.dto";
 import { Permission } from "../role/decorators/permission.decorator";
+import { LoggingInterceptor } from "../common/interceptors/logging.interceptor";
 
+@UseInterceptors(LoggingInterceptor)
 @Controller("task")
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}

@@ -4,7 +4,9 @@ import { SponsorService } from "./sponsor.service";
 import { parseQuery } from "../prisma/prisma.utils";
 import { SponsorCreateDto, SponsorUpdateDto } from "./sponsor.dto";
 import { Permission } from "../role/decorators/permission.decorator";
+import { LoggingInterceptor } from "../common/interceptors/logging.interceptor";
 
+@UseInterceptors(LoggingInterceptor)
 @Controller("sponsor")
 export class SponsorController {
   constructor(private readonly sponserService: SponsorService) {}

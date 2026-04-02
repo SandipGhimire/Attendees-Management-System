@@ -57,6 +57,10 @@ const routes: RouterConfig[] = [
             path: "profile",
             component: () => import("@/views/Settings/Profile"),
           },
+          {
+            path: "logs",
+            component: () => import("@/views/Settings/SystemLog"),
+          },
         ],
       },
     ],

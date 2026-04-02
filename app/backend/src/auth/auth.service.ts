@@ -6,6 +6,8 @@ import { UAParser } from "ua-parser-js";
 import { PrismaService } from "../prisma/prisma.service";
 import { SignUpDto, LoginDTO } from "./dto/auth.dto";
 import { JwtPayload } from "./strategies/jwt.strategy";
+import { SystemService } from "../system/system.service";
+import { ActionType, LogType } from "../../database/generated/client";
 
 interface DeviceInfo {
   userAgent?: string;
@@ -18,7 +20,8 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private config: ConfigService
+    private config: ConfigService,
+    private systemService: SystemService
   ) {}
 
   async signUp(dto: SignUpDto) {
@@ -52,6 +55,14 @@ export class AuthService {
         phoneNumber: dto.phoneNumber,
         lastLogin: new Date(),
       },
+    });
+
+    await this.systemService.createLog({
+      type: LogType.USER,
+      action: ActionType.CREATE,
+      userId: user.uuid,
+      message: `User signed up: ${user.email}`,
+      metadata: { email: user.email, username: user.username },
     });
 
     return {
@@ -88,6 +99,18 @@ export class AuthService {
     await this.prisma.user.update({
       where: { uuid: user.uuid },
       data: { lastLogin: new Date() },
+    });
+
+    await this.systemService.createLog({
+      type: LogType.USER,
+      action: ActionType.LOGIN,
+      userId: user.uuid,
+      message: `User logged in: ${user.email}`,
+      metadata: {
+        email: user.email,
+        ipAddress: deviceInfo.ipAddress,
+        userAgent: deviceInfo.userAgent,
+      },
     });
 
     // Clean up expired and inactive tokens
@@ -163,6 +186,14 @@ export class AuthService {
     if (result.count === 0) {
       throw new UnauthorizedException("Please login to continue!");
     }
+
+    await this.systemService.createLog({
+      type: LogType.USER,
+      action: ActionType.LOGOUT,
+      userId: userUUID,
+      message: `User logged out`,
+      metadata: { sessionId },
+    });
 
     return { message: "Logged out successfully" };
   }

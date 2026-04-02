@@ -1,10 +1,24 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseInterceptors,
+} from "@nestjs/common";
 import { RoleService } from "./role.service";
 import { parseQuery } from "../prisma/prisma.utils";
 import { Permission } from "./decorators/permission.decorator";
 import { CreateRoleDto, UpdateRoleDto } from "./role.dto";
 import { type AuthenticatedRequest } from "../auth/interfaces/auth-request.interface";
+import { LoggingInterceptor } from "../common/interceptors/logging.interceptor";
 
+@UseInterceptors(LoggingInterceptor)
 @Controller("role")
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}

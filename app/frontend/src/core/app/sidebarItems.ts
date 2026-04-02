@@ -1,5 +1,5 @@
 import type { SidebarItem } from "@/core/types/app/sidebar.type";
-import { LayoutDashboard, Users, Scan, ClipboardList, Handshake, SquarePen, UserLock } from "lucide-react";
+import { LayoutDashboard, Users, Scan, ClipboardList, Handshake, SquarePen, UserLock, History } from "lucide-react";
 
 const sidebarItems = (): SidebarItem[] => {
   return [
@@ -47,7 +47,7 @@ const sidebarItems = (): SidebarItem[] => {
     },
     {
       label: "Settings",
-      permission: ["role.list", "user.list"],
+      permission: ["role.list", "user.list", "system_logs.read"],
     },
     {
       label: "Roles",
@@ -60,6 +60,12 @@ const sidebarItems = (): SidebarItem[] => {
       icon: UserLock,
       to: "/settings/users",
       permission: "user.list",
+    },
+    {
+      label: "System Logs",
+      icon: History,
+      to: "/settings/logs",
+      permission: "system_logs.read",
     },
   ];
 };

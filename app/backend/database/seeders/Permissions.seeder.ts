@@ -49,6 +49,9 @@ const run = async (prisma: PrismaClient) => {
       { name: "Create Role", key: "role.create", description: "Create a new role" },
       { name: "Update Role", key: "role.update", description: "Update an existing role" },
       { name: "Delete Role", key: "role.delete", description: "Delete a role" },
+
+      // System Logs
+      { name: "Read System Logs", key: "system_logs.read", description: "View the list of system logs" },
     ];
 
     // Seed permissions

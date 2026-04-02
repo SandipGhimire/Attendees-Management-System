@@ -14,6 +14,7 @@ import { SponsorModule } from "./sponsor/sponsor.module";
 import { AttendeesModule } from "./attendees/attendees.module";
 import { TaskModule } from "./task/task.module";
 import { DashboardModule } from "./dashboard/dashboard.module";
+import { SystemModule } from "./system/system.module";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { join } from "path";
 
@@ -40,6 +41,7 @@ import { join } from "path";
     AttendeesModule,
     TaskModule,
     DashboardModule,
+    SystemModule,
   ],
   controllers: [AppController],
   providers: [

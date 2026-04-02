@@ -51,6 +51,11 @@ const task = {
 const dashboard = {
   stats: "/dashboard/stats/",
 };
+
+const system = {
+  logs: "/system/logs/",
+};
+
 const endpoints = {
   auth,
   user,
@@ -59,6 +64,7 @@ const endpoints = {
   sponsor,
   task,
   dashboard,
+  system,
 };
 
 export default endpoints;
