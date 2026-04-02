@@ -74,19 +74,13 @@ export default function Sponsors() {
         key: "isActive",
         header: "Is Active",
         render: (row) => (
-          <>{row.isActive ? (
-            <Check
-              className="text-green-500 -my-2"
-              size={18}
-              strokeWidth={4}
-            />
-          ) : (
-            <X
-              className="text-red-500 -my-2"
-              size={18}
-              strokeWidth={4}
-            />
-          )}</>
+          <>
+            {row.isActive ? (
+              <Check className="text-green-500 -my-2" size={18} strokeWidth={4} />
+            ) : (
+              <X className="text-red-500 -my-2" size={18} strokeWidth={4} />
+            )}
+          </>
         ),
       },
     ],

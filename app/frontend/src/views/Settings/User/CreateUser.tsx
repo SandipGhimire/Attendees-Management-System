@@ -35,10 +35,7 @@ export default function CreateUser({ successCallback }: CreateUserProps) {
   const isFormValid = useMemo(() => {
     const commonFields = !!(form.firstName && form.lastName && form.email && form.username && form.roleIds.length > 0);
     if (mode === "create") {
-      return (
-        commonFields &&
-        !!(form.password && form.confirmPassword && form.password === form.confirmPassword)
-      );
+      return commonFields && !!(form.password && form.confirmPassword && form.password === form.confirmPassword);
     }
     return commonFields;
   }, [form, mode]);

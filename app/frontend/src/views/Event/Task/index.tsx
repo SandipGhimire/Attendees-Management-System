@@ -91,7 +91,7 @@ export default function Task() {
     ],
     [handleEdit, handleDelete, canUpdate, canDelete]
   );
-  
+
   const onFetch = useCallback((data: any) => {
     setCount(data.meta.total);
   }, []);

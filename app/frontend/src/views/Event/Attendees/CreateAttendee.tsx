@@ -49,32 +49,29 @@ export default function CreateAttendee({ onSuccess }: CreateAttendeeProps) {
     }
   };
 
-  useEffect(() => {
-    if (!isCreateModalOpen) {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-      }
-      if (paymentSlipPreviewUrl) {
-        URL.revokeObjectURL(paymentSlipPreviewUrl);
-        setPaymentSlipPreviewUrl(null);
-      }
-    }
-  }, [isCreateModalOpen, previewUrl, paymentSlipPreviewUrl]);
-
-  useEffect(() => {
-    if (isCreateModalOpen && !selectedAttendee) {
+  // Reset state during render when modal closes or switches to "Create" mode
+  // This avoids cascading renders from useEffect and satisfies react-hooks/set-state-in-effect
+  const [prevMeta, setPrevMeta] = useState({ isOpen: isCreateModalOpen, selectedId: selectedAttendee?.id });
+  if (isCreateModalOpen !== prevMeta.isOpen || selectedAttendee?.id !== prevMeta.selectedId) {
+    setPrevMeta({ isOpen: isCreateModalOpen, selectedId: selectedAttendee?.id });
+    if (!isCreateModalOpen || (isCreateModalOpen && !selectedAttendee)) {
       setPreviewUrl(null);
       setPaymentSlipPreviewUrl(null);
     }
-  }, [isCreateModalOpen, selectedAttendee]);
+  }
 
+  // Handle Object URL lifecycle to prevent memory leaks
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  useEffect(() => {
+    return () => {
       if (paymentSlipPreviewUrl) URL.revokeObjectURL(paymentSlipPreviewUrl);
     };
-  }, [previewUrl, paymentSlipPreviewUrl]);
+  }, [paymentSlipPreviewUrl]);
 
   return (
     <Modal

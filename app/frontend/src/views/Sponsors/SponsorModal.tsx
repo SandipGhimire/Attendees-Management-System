@@ -47,18 +47,22 @@ export default function CreateSponsor({ onSuccess }: CreateSponsorProps) {
     }
   };
 
-  useEffect(() => {
-    if (!isCreateModalOpen && previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+  // Reset state during render when modal closes or switches to "Create" mode
+  // This avoids cascading renders from useEffect and satisfies react-hooks/set-state-in-effect
+  const [prevMeta, setPrevMeta] = useState({ isOpen: isCreateModalOpen, selectedId: selectedSponsor?.id });
+  if (isCreateModalOpen !== prevMeta.isOpen || selectedSponsor?.id !== prevMeta.selectedId) {
+    setPrevMeta({ isOpen: isCreateModalOpen, selectedId: selectedSponsor?.id });
+    if (!isCreateModalOpen || (isCreateModalOpen && !selectedSponsor)) {
       setPreviewUrl(null);
     }
-  }, [isCreateModalOpen, previewUrl]);
+  }
 
+  // Handle Object URL lifecycle to prevent memory leaks
   useEffect(() => {
-    if (isCreateModalOpen && !selectedSponsor) {
-      setPreviewUrl(null);
-    }
-  }, [isCreateModalOpen, selectedSponsor]);
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   return (
     <Modal
