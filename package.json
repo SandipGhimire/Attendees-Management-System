@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "pnpm -r --parallel run dev",
     "build": "pnpm build:shared && pnpm build:backend && pnpm build:frontend",
-    "build:shared": "echo '================= Building shared =================' && pnpm --filter shared build",
+    "build:shared": "echo '================= Building shared =================' && pnpm --filter shared-types build",
     "build:backend": "echo '================= Building backend =================' && pnpm --filter backend run build",
     "build:frontend": "echo '================= Building frontend =================' && pnpm --filter frontend run build",
     "lint": "pnpm -r --parallel run lint",

@@ -7,11 +7,15 @@ model SystemLog {
   message   String
   metadata  Json?
   createdAt DateTime    @default(now())
+
+  @@map("system_logs")
 }
 
 enum LogType {
   SYSTEM
   USER
+
+  @@map("log_types")
 }
 
 enum ActionType {
@@ -21,6 +25,8 @@ enum ActionType {
   LOGIN
   LOGOUT
   OTHER
+
+  @@map("action_types")
 }
 
 enum LogLevel {
@@ -29,4 +35,6 @@ enum LogLevel {
   ERROR
   DEBUG
   CRITICAL
+
+  @@map("log_levels")
 }
