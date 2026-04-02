@@ -17,7 +17,7 @@ export default function CreateAttendee({ onSuccess }: CreateAttendeeProps) {
     updateAttendee,
     selectedAttendee,
     errors,
-  } = useAttendeeStore(); 
+  } = useAttendeeStore();
   const isLoading = useLoaderStore((s) => s.isLoading("createAttendee") || s.isLoading("updateAttendee"));
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [paymentSlipPreviewUrl, setPaymentSlipPreviewUrl] = useState<string | null>(null);
@@ -69,7 +69,6 @@ export default function CreateAttendee({ onSuccess }: CreateAttendeeProps) {
     }
   }, [isCreateModalOpen, selectedAttendee]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -88,12 +87,7 @@ export default function CreateAttendee({ onSuccess }: CreateAttendeeProps) {
           <button type="button" className="btn btn-outline-danger" onClick={closeCreateModal} disabled={isLoading}>
             Cancel
           </button>
-          <button
-            type="button"
-            className={`btn btn-primary ${isLoading ? "btn-loading" : ""}`}
-            onClick={handleSubmit}
-            // Removed the disabled condition checking multiple form fields
-          >
+          <button type="button" className={`btn btn-primary ${isLoading ? "btn-loading" : ""}`} onClick={handleSubmit}>
             {selectedAttendee ? "Update Attendee" : "Create Attendee"}
           </button>
         </>

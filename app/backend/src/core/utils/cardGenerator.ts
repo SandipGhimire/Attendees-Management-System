@@ -1,8 +1,12 @@
-import { createCanvas, loadImage } from "@napi-rs/canvas";
+import { createCanvas, GlobalFonts, loadImage } from "@napi-rs/canvas";
 import path from "path";
 import { generateQRCode } from "./qrGenerator";
 
 const CARD_BG = path.join(process.cwd(), "public", "img", "card.png");
+
+GlobalFonts.registerFromPath(path.join(process.cwd(), "public", "font", "Montserrat.ttf"), "Montserrat");
+
+GlobalFonts.registerFromPath(path.join(process.cwd(), "public", "font", "PottaOne.ttf"), "PottaOne");
 
 type IdCardData = {
   name: string;
@@ -42,7 +46,7 @@ export async function generateIdCard(data: IdCardData): Promise<Buffer> {
 
     const centerX = canvasWidth / 1.97;
     const drawX = centerX - drawWidth / 2;
-    const drawY = 2000;
+    const drawY = 2100;
 
     ctx.drawImage(profile, drawX, drawY, drawWidth, drawHeight);
   }
@@ -65,28 +69,28 @@ export async function generateIdCard(data: IdCardData): Promise<Buffer> {
   ctx.textAlign = "center";
 
   // NAME
-  ctx.font = "bold 150px LalitaOne";
-  ctx.fillStyle = "#d71627";
-  ctx.fillText(data.name, canvasWidth / 2, 3560);
-  ctx.lineWidth = 2;
+  ctx.font = "500 150px PottaOne";
+  ctx.lineWidth = 8;
   ctx.strokeStyle = "#ffffff";
   ctx.strokeText(data.name, canvasWidth / 2, 3560);
+  ctx.fillStyle = "#d71627";
+  ctx.fillText(data.name, canvasWidth / 2, 3560);
 
   // POSITION
-  ctx.font = "bold 100px Montserrat";
-  ctx.fillStyle = "#03458e";
-  ctx.fillText(data.position, canvasWidth / 2, 3715);
-  ctx.lineWidth = 2;
+  ctx.font = "bold 90px Montserrat";
+  ctx.lineWidth = 6;
   ctx.strokeStyle = "#ffffff";
   ctx.strokeText(data.position, canvasWidth / 2, 3715);
+  ctx.fillStyle = "#03458e";
+  ctx.fillText(data.position, canvasWidth / 2, 3715);
 
   // CLUB
-  ctx.font = "bold 100px Montserrat";
-  ctx.fillStyle = "#03458e";
-  ctx.fillText(data.club, canvasWidth / 2, 3815);
-  ctx.lineWidth = 2;
+  ctx.font = "bold 90px Montserrat";
+  ctx.lineWidth = 6;
   ctx.strokeStyle = "#ffffff";
   ctx.strokeText(data.club, canvasWidth / 2, 3815);
+  ctx.fillStyle = "#03458e";
+  ctx.fillText(data.club, canvasWidth / 2, 3815);
 
   // -----------------------------
   // Return PNG buffer
