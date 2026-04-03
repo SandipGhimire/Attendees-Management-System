@@ -134,7 +134,7 @@ export default function PublicSponsors() {
                       <h4 className="font-bold text-foreground group-hover:text-primary transition-colors">
                         {link.label}
                       </h4>
-                      <p className="text-xs text-muted-foreground truncate max-w-[200px] sm:max-w-xs">{link.url}</p>
+                      <p className="text-xs text-muted-foreground">{link.url}</p>
                     </div>
                     <ExternalLink
                       size={18}
