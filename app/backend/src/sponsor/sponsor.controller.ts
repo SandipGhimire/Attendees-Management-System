@@ -4,10 +4,44 @@ import { SponsorService } from "./sponsor.service";
 import { parseQuery } from "../prisma/prisma.utils";
 import { SponsorCreateDto, SponsorUpdateDto } from "./sponsor.dto";
 import { Permission } from "../role/decorators/permission.decorator";
+import { Public } from "../auth/decorators/public.decorator";
 
 @Controller("sponsor")
 export class SponsorController {
   constructor(private readonly sponserService: SponsorService) {}
+
+  @Public()
+  @Get("public/list")
+  async publicList() {
+    const result = await this.sponserService.getPublicSponsors();
+    return {
+      success: true,
+      message: "Public sponsors fetched successfully",
+      status: 200,
+      data: result,
+    };
+  }
+
+  @Public()
+  @Get("public/detail/:id")
+  async publicDetail(@Param("id") id: string) {
+    const numericId = parseInt(id, 10);
+    const result = await this.sponserService.getSponsorById(numericId);
+    if (!result) {
+      return {
+        success: false,
+        message: "Sponsor not found",
+        status: 200,
+        data: null,
+      };
+    }
+    return {
+      success: true,
+      message: "Sponsor fetched successfully",
+      status: 200,
+      data: result,
+    };
+  }
 
   @Get("list")
   @Permission(["sponsor.list"])

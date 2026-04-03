@@ -11,6 +11,10 @@ const routes: RouterConfig[] = [
     },
   },
   {
+    path: "p/sponsors",
+    component: () => import("@/views/Sponsors/PublicSponsors"),
+  },
+  {
     path: "/",
     component: () => import("@/layout/AuthLayout"),
     meta: {

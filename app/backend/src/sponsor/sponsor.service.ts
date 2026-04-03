@@ -107,4 +107,12 @@ export class SponsorService {
       });
     });
   }
+
+  async getPublicSponsors(): Promise<any[]> {
+    return await this.db.sponsor.findMany({
+      where: { isActive: true },
+      orderBy: { order: "asc" },
+      include: { links: true },
+    });
+  }
 }
